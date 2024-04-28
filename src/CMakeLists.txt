@@ -13,6 +13,33 @@ FILE(GLOB_RECURSE SRCs
 
 LINK_LIBRARIES()
 
+ADD_SUBDIRECTORY(signal)
+
 #Generate the lib and executable file
-SET(BIN_NAME sort)
-ADD_EXECUTABLE(${BIN_NAME} sort.cpp)
+SET(BIN_NAME test_future)
+ADD_EXECUTABLE(${BIN_NAME} test_future.cpp)
+TARGET_LINK_LIBRARIES(${BIN_NAME} PUBLIC pthread dl)
+
+SET(BIN_NAME test_function)
+ADD_EXECUTABLE(${BIN_NAME} test_function.cpp)
+TARGET_LINK_LIBRARIES(${BIN_NAME} PUBLIC pthread dl)
+
+SET(BIN_NAME test_smart_ptr)
+ADD_EXECUTABLE(${BIN_NAME} test_smart_ptr.cpp)
+TARGET_LINK_LIBRARIES(${BIN_NAME} PUBLIC pthread dl)
+
+SET(BIN_NAME test_thread)
+ADD_EXECUTABLE(${BIN_NAME} test_thread.cpp)
+TARGET_LINK_LIBRARIES(${BIN_NAME} PUBLIC pthread dl)
+
+SET(BIN_NAME test_signal)
+ADD_EXECUTABLE(${BIN_NAME} test_signal.cpp)
+TARGET_LINK_LIBRARIES(${BIN_NAME} PUBLIC pthread dl)
+
+SET(BIN_NAME test_args)
+ADD_EXECUTABLE(${BIN_NAME} test_args.cpp)
+TARGET_LINK_LIBRARIES(${BIN_NAME} PUBLIC pthread dl)
+
+SET(BIN_NAME test_functor)
+ADD_EXECUTABLE(${BIN_NAME} test_functor.cpp)
+TARGET_LINK_LIBRARIES(${BIN_NAME} PUBLIC pthread dl)
