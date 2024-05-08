@@ -1,42 +1,65 @@
 #include <iostream>
 #include <vector>
 #include <functional>
+#include <memory>
+#include <mutex>
 
-using namespace std;
 #define Debug(fmt, ...) printf("[%s:%s:%d]: " fmt "\n", __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
 /**
  * 先实现槽基类,包含两个虚函数对象, 主要为后续调用提供接口
  * @tparam TParm
  */
-template<class TParm>
 class SlotBase {
 public:
-    virtual void exec(TParm) = 0;
+    SlotBase() = default;
+    SlotBase(const SlotBase&) = delete;
+    SlotBase& operator=(const SlotBase&) = delete;
+
     virtual ~SlotBase() = default;
+};
+
+template<class SlotType>
+class SignalBase {
+public:
+    SignalBase() = default;
+    virtual ~SignalBase() = default;
+
+public:
+    std::mutex mutex_;
+    std::vector<std::weak_ptr<SlotType>> slots_;
 };
 
 /**
  * Slot子类，负责实现exec方法，通过exec调用 receiver.func,
  * 同时Slot构造函数负责初始化两个内部变量，将需要关联的 receiver 和 receiver.func 插入槽
- * @tparam TReceiver
- * @tparam TParm
+ * @tparam TReceiver 目标接受者
+ * @tparam Function 目标接受者需要执行的程序
  */
-template<class TReceiver, class TParm>
-class Slot : public SlotBase<TParm> {
+template<class Function>
+class Slot : public SlotBase {
 public:
-    Slot(TReceiver* receiver, void (TReceiver::*func) (TParm))
-        : receiver_(receiver), func_(func) {
+    Slot(const std::weak_ptr<SignalBase<SlotBase>>& signal, std::function<Function> func)
+        : signal_(signal), func_(func) {
         std::cout << "Add Slot\n";
     }
 
-    void exec(TParm parm) override {
-        (receiver_->*func_)(parm);
+    ~Slot() {
+        std::shared_ptr<SignalBase<SlotBase>> sig = signal_.lock();
+        if(sig)
+            return;
+        {
+            std::unique_lock<std::mutex> lck(sig->mutex_);
+            for(auto it=sig->slots_.begin(); it!=sig->slots_.end(); ++it) {
+                if(it->expired() || it->lock().get() == this)
+                    sig->slots_.erase(std::move(sig->slots_.begin(), sig->slots_.end(), it), sig->slots_.end());
+            }
+        }
     }
 
 private:
-    TReceiver* receiver_ = nullptr;
-    void (TReceiver::*func_)(TParm);
+    std::function<Function> func_;
+    std::weak_ptr<SignalBase<SlotBase>> signal_;
 };
 
 /**
@@ -46,27 +69,26 @@ private:
  * bind(): 将一个 槽Slot 与 信号Signal 实例关联起来
  * @tparam TParm 
  */
-template<class TParm>
+template<class Function>
 class Signal {
 public:
-    ~Signal() {
-        for(auto& it : slot_vec_) {
-            delete it;
-        }
+    Signal() : signal_(std::make_shared<SignalBase<Slot<Function>>>()) {}
+
+
+
+    template<class TReceiver, class Function>
+    void connect(std::function<Function> func) {
+        slot_vec_.emplace_back( std::make_shared<Slot<TReceiver, Function>(receiver, func) );
     }
 
-    template<class TReceiver>
-    void bind(TReceiver* p_obj, void(TReceiver::*func)(TParm)) {
-        slot_vec_.emplace_back(new Slot<TReceiver, TParm>(p_obj, func));
-    }
-
-    void operator()(TParm parm) {
+    template <class... Args>
+    void operator()(Args && ...args) {
         for(auto& it : slot_vec_)
             it->exec(parm);
     }
 
 private:
-    std::vector<SlotBase<TParm>*> slot_vec_;
+    std::shared_ptr<SignalBase<Slot<Function>>> signal_;
 };
 
 ///Connect函数
