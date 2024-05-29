@@ -31,7 +31,15 @@ void date_time_ms() {
     std::cout << "Milliseconds: " << duration_in_ms.count() << std::endl;
 }
 
+uint64_t clocktime_us() {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (uint64_t)ts.tv_sec * 1000000ULL + ts.tv_nsec / 1000;
+}
+
 int main() {
-    date_time_ms();
+    //date_time_ms();
+    std::cout << "System uptime: " << clocktime_us() << " us\n";
+    std::cout << "System uptime: " << clocktime_us()/(1e6*60) << " min\n";
     return 0;
 }
