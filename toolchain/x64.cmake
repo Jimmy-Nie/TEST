@@ -5,7 +5,7 @@ SET(CMAKE_SYSTEM_PROCESSOR x86)
 # set platform define
 ADD_DEFINITIONS(-DPC)
 
-SET(PLATFORM x86_64)
+SET(PLATFORM x64)
 
 # specify the cross compiler
 SET(CMAKE_C_COMPILER  gcc)

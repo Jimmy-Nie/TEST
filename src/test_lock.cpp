@@ -49,16 +49,16 @@ void testTimedMutex() {
 }
 
 void testSharedLock() {
-    std::shared_mutex shared_mtx;
+    //std::shared_mutex shared_mtx;
     int data = 0;
 
     auto reader = [&](int id) {
         int i = 0;
         while(++i < 20) {
-            shared_mtx.lock_shared();
+            //shared_mtx.lock_shared();
             std::cout << "Reader id: " << id << ", data: " << data << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(1));
-            shared_mtx.unlock_shared();
+            //shared_mtx.unlock_shared();
         }
 
     };
@@ -66,11 +66,11 @@ void testSharedLock() {
     auto writer = [&](int id = 0) {
         int i = 0;
         while(++i < 5) {
-            shared_mtx.lock();
+            //shared_mtx.lock();
             ++data;
             std::cout << "Writer id: " << id << ", data: " << data << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(3));
-            shared_mtx.unlock();
+            //shared_mtx.unlock();
         }
     };
 

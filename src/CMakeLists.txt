@@ -8,8 +8,6 @@ ENDIF ()
 
 LINK_LIBRARIES(libpthread.so libdl.so)
 
-ADD_SUBDIRECTORY(signal)
-
 #Generate the lib and executable file
 SET(BIN_NAME test_future)
 ADD_EXECUTABLE(${BIN_NAME} test_future.cpp)
@@ -22,10 +20,6 @@ ADD_EXECUTABLE(${BIN_NAME} test_smart_ptr.cpp)
 
 SET(BIN_NAME test_thread)
 ADD_EXECUTABLE(${BIN_NAME} test_thread.cpp)
-
-SET(BIN_NAME test_signal)
-ADD_EXECUTABLE(${BIN_NAME} test_signal.cpp)
-TARGET_LINK_LIBRARIES(${BIN_NAME} PUBLIC signal)
 
 SET(BIN_NAME test_args)
 ADD_EXECUTABLE(${BIN_NAME} test_args.cpp)

@@ -3,8 +3,6 @@ SET(CMAKE_SYSTEM_NAME Linux)
 SET(CMAKE_SYSTEM_PROCESSOR arm)
 
 # set platform define
-ADD_DEFINITIONS(-DR328)
-
 SET(PLATFORM R328)
 
 # specify the cross compiler
